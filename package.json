@@ -1,0 +1,22 @@
+{
+  "name": "phonebook",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/graceca87/W6D2_Phone_book_Flask.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/graceca87/W6D2_Phone_book_Flask/issues"
+  },
+  "homepage": "https://github.com/graceca87/W6D2_Phone_book_Flask#readme",
+  "dependencies": {
+    "bootstrap-icons": "^1.9.1"
+  }
+}
