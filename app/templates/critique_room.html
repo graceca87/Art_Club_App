@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Crit-Room{% endblock title %}
+
+{% block content %}
+ <h1>This is where we are going to display all of the WIPs</h1>
+    <div class="card mt-4 rounded w-50 mx-auto">
+        <h5 class="card-header text-center">Log In</h5>
+        <div class="card-body">
+            <form method="POST" action="" enctype="multipart/form-data">
+                <input type= "file" name= "file">
+                <button>Submit</button>
+            </form>
+        </div>
+    </div>
+
+
+
+<!-- {% for file in files %}
+<img src="{{ url_for('upload', filename=file) }}" style="width: 64px">
+{% endfor %} -->
+
+{% endblock content %}

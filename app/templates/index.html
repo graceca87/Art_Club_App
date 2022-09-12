@@ -9,12 +9,9 @@
 
 {% if current_user.is_authenticated %}
 
-<h2 class="m-4 text-center" style="color:rgb(22, 69, 69);">{{ current_user.username }}'s Addys</h2>
-<div class="d-flex justify-content-around">
-    <a href="{{ url_for('add_addy') }}" class="btn btn-colour-2 btn-lg mt-3 w-30">+ New Addy</a>
-</div>
-<hr>
-<!-- Start Addy Card -->
+<h1>Hello World!</h1>
+
+<!-- Start Addy Card
 <div class="d-flex flex-wrap p-2">
 {% for contact in contacts %}
 {% if current_user == contact.book_owner %}
@@ -62,7 +59,7 @@
 
 
 <!-- Delete button triggers Modal -->
-
+<!-- 
 <div class="modal fade" id="deleteModal-{{ contact.id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -87,6 +84,6 @@
 
 {% else %}
 <h5 class="text-center">sign up or log in to get started</h5>
-{% endif %}
+{% endif %} --> -->
 
 {% endblock content %}
