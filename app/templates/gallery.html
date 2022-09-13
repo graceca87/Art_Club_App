@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Gallery{% endblock title %}
+
+{% block content %}
+
+<h1> Gallery/Forum </h1>
+
+<div class="d-flex flex-wrap p-2">
+    {% for piece in pieces %}
+        <div class="d-flex col-md-8 mb-4 p-3">
+            <div class="card m-2" style="width: 60rem;">
+                <img src="{{ piece.image_url }}" class="card-img-top img-fluid" alt="...">
+                <div class="card-body">
+                    <div class="d-flex flex-row justify-content-around">
+                        <h4 class="card-title">{{ piece.title }}</h4>
+                    </div>
+                    <div class="d-flex flex-row justify-content-around">
+                        <p class="card-text">{{ piece.comments }}</p>
+                    </div>
+                    <br>
+                    <div class="d-flex flex-row justify-content-around">
+                        <p class="card-text"><small class="text-white">submitted {{ piece.date_created.strftime('%B %d,%Y')
+                                }}</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock content %}

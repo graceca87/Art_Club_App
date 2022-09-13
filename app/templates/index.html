@@ -5,11 +5,24 @@
 {% block content %}
 
 
-<!-- image behind card -->
+
+
+
+    <!-- {% if piece %}
+        <div class="card" style="width: 18rem;">
+            <img src="{{ piece.image_url }}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">{{ piece.title }}</h5>
+                <p class="card-text">{{ piece.comments }}</p>
+                <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>
+        </div>
+    {% endif %}
+ -->
 
 {% if current_user.is_authenticated %}
 
-<h1>Hello World!</h1>
+
 
 <!-- Start Addy Card
 <div class="d-flex flex-wrap p-2">

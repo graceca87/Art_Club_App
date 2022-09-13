@@ -63,21 +63,33 @@ def login():
 def logout():
     logout_user()
     flash('You have successfully logged out.', 'primary')
-    return redirect(url_for('home'))
+    return redirect(url_for('index'))
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
     return render_template('index.html')
 
+@app.route('/critique-room', methods=['GET', 'POST'])
+def critique_room():
+    form=ImageForm()
+    return render_template('critique_room.html', form=form)
 
 
+@app.route('/gallery')
+def gallery():
+    pieces = Piece.query.all()
+    return render_template('gallery.html', pieces=pieces)
 
+# @app.route('/addy_book')
+# def index():
+#     contacts = Contact.query.all()
+#     return render_template("index.html", contacts=contacts)
 
 # ------------------- Cloudinary------------------
 
 
-@app.route("/critique-room", methods=['GET', 'POST'])
+@app.route("/upload-art", methods=['GET', 'POST'])
 def upload_file():
     form=ImageForm()
     app.logger.info('in upload route')
@@ -93,14 +105,15 @@ def upload_file():
             print (jsonify(upload_result))
             image_url = upload_result["secure_url"]
             new_piece= Piece(image_url = image_url, title=form.title.data, comments=form.comments.data, user_id=current_user.id)
-            return redirect(url_for('critique_room'))
+            return render_template('index.html', piece = new_piece, form=form)
     else:
-        return render_template('critique_room.html', form=form)
+        return render_template('critique_room.html', form=form, piece=None)
 
 
 
+# image_url = new_piece.image_url
 
-
+# pieces = Piece.query.all
 
 
 
