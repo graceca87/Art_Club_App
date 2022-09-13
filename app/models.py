@@ -37,13 +37,14 @@ def load_user(user_id):
 
 class Piece(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    image_url = db.Column(db.String, unique=True, nullable=False)
+    # prev_versions = db.Column()
     title = db.Column(db.String(250), nullable=False)
-    # how to automate this to increase with every update
-    version = db.Column(db.Integer, nullable = False)
+    comments = db.Column(db.String)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) 
-    # give users the ability to edit or delete their own comments:
-    comments = db.relationship('Comment', backref = 'user', lazy='dynamic')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    # user = db.relationship('Artist', backref='pieces', lazy='dynamic')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -56,32 +57,32 @@ class Piece(db.Model):
     #             setattr(self, key, value)
     #     db.session.commit()
 
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
+    # def delete(self):
+    #     db.session.delete(self)
+    #     db.session.commit()
 
 
-class Comment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    body = db.Column(db.String(1000), nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    piece = db.Column(db.Integer, db.ForeignKey('piece.id'))
+# class Comment(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     body = db.Column(db.String(1000), nullable=False)
+#     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+#     piece = db.Column(db.Integer, db.ForeignKey('piece.id'))
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        db.session.add(self)
-        db.session.commit()
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
+#         db.session.add(self)
+#         db.session.commit()
 
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            # if self.comment.id == self.user
-            if key in {"body"}:
-                setattr(self, key, value)
-        db.session.commit()
+#     def update(self, **kwargs):
+#         for key, value in kwargs.items():
+#             # if self.comment.id == self.user
+#             if key in {"body"}:
+#                 setattr(self, key, value)
+#         db.session.commit()
 
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
+#     def delete(self):
+#         db.session.delete(self)
+#         db.session.commit()
 
 

@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import validators, StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, EqualTo
-from flask_wtf.file import FileField
+from flask_wtf.file import FileField, FileAllowed
 
 
 
@@ -24,6 +24,13 @@ class LoginForm(FlaskForm):
     submit = SubmitField()
 
 
-class PostForm(FlaskForm):
-    image = FileField('Image', vali)
+class ImageForm(FlaskForm):
+    file = FileField('File', validators=[
+        FileAllowed(['jpg','jpeg','png'], "We only accenpt JPG or PNG images")
+    ])
+    title = StringField('Title', [
+        validators.InputRequired(),
+        validators.Length(max=200)
+    ])
+    comments = StringField('Comments')
     submit = SubmitField('Submit')

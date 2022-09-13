@@ -1,10 +1,19 @@
-from app import app
-from flask import render_template, redirect, url_for, flash, request
+from tkinter import Image
+from app import app, db
+from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
-from app.forms import SignUpForm, LoginForm
-from app.models import User
+from app.forms import SignUpForm, LoginForm, ImageForm
+from app.models import User, Piece
+from werkzeug.utils import secure_filename
+from flask_cors import CORS, cross_origin
+from dotenv import load_dotenv
+import cloudinary
+import os
+import cloudinary.uploader
+import cloudinary.api
 
 
+load_dotenv()
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
@@ -62,20 +71,36 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/crit-room', methods=["GET", "POST"])
-@login_required
-def critique_room():
-    if request.method == 'POST':
-        uploaded_file = request.files['file']
-        if uploaded_file.filename != '':
-            uploaded_file.save(uploaded_file.filename)
-        return redirect(url_for('critique_room'))
-    return render_template('critique_room.html')
+
+
+
+# ------------------- Cloudinary------------------
+
+
+@app.route("/critique-room", methods=['GET', 'POST'])
+def upload_file():
+    form=ImageForm()
+    app.logger.info('in upload route')
+    if request.method == 'POST' and form.validate_on_submit():
+        cloudinary.config(cloud_name = os.getenv('CLOUD_NAME'), api_key=os.getenv('API_KEY'), 
+        api_secret=os.getenv('API_SECRET'))
+        upload_result = None
+        file_to_upload = request.files['file']
+        app.logger.info('%s file_to_upload', file_to_upload)
+        if file_to_upload:
+            upload_result = cloudinary.uploader.upload(file_to_upload)
+            app.logger.info(upload_result)
+            print (jsonify(upload_result))
+            image_url = upload_result["secure_url"]
+            new_piece= Piece(image_url = image_url, title=form.title.data, comments=form.comments.data, user_id=current_user.id)
+            return redirect(url_for('critique_room'))
+    else:
+        return render_template('critique_room.html', form=form)
 
 
 
 
-    
+
 
 
 

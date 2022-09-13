@@ -26,7 +26,7 @@
                         {% if current_user.is_authenticated %}
                         <a class="nav-link text-white" href="#">Inspo Room</a>
                         <a class="nav-link text-white" href="#">Share WIP</a>
-                        <a class="nav-link text-white" href="{{ url_for('critique_room') }}">Join Critique</a>
+                        <a class="nav-link text-white" href="{{ url_for('upload_file') }}">Join Critique</a>
                         <a class="nav-link text-white" href="{{ url_for('logout') }}">Log Out</a>
                         {% else %}
                         <a class="nav-link text-white" href="{{ url_for('login') }}">Login</a>

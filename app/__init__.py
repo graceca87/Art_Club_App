@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 import os
-
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -16,6 +16,9 @@ app.config['UPLOAD_FOLDER'] = IMG_FOLDER
 db = SQLAlchemy(app)
 # Create an instance of Migrate which will be our migration engine and pass in the app and SQLAlchemy instance
 migrate = Migrate(app, db)
+
+CORS(app)
+
 # render_as_batch=True
 # Create an instance of the LoginManager to handle authentication
 login = LoginManager(app)
