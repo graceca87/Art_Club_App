@@ -32,5 +32,9 @@ class ImageForm(FlaskForm):
         validators.InputRequired(),
         validators.Length(max=200)
     ])
+    artist = StringField('Artist', [
+        validators.InputRequired(),
+        validators.Length(max=100)
+    ])
     comments = TextAreaField('Comments')
     submit = SubmitField('Submit')

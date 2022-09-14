@@ -50,13 +50,13 @@ def login():
             login_user(user)
             # Redirect back to the home pageUnboundLocalError: local variable 'user' referenced before assignment
             flash(f"welcome back, {user.username}!", "success")
-            return redirect(url_for('index'))
+            return redirect(url_for('gallery'))
         # If no user with username or password incorrect
         else:
             # flash a danger message
             flash('Incorrect username and/or password. Please try again', 'danger') 
             # Redirect back to login
-            return redirect(url_for('login'))
+            return redirect(url_for('gallery'))
     return render_template('login.html', form=form)
 
 @app.route('/logout')
@@ -81,10 +81,15 @@ def gallery():
     pieces = Piece.query.all()
     return render_template('gallery.html', pieces=pieces)
 
-# @app.route('/addy_book')
-# def index():
-#     contacts = Contact.query.all()
-#     return render_template("index.html", contacts=contacts)
+@app.route('/portfolio')
+def portfolio():
+    pieces = current_user.pieces
+    return render_template('portfolio.html', pieces=pieces)
+
+@app.route('/pieces/<piece_id>/view')
+def view_piece(piece_id):
+    piece = Piece.query.get_or_404(piece_id)
+    return render_template('view_piece.html', piece=piece)
 
 # ------------------- Cloudinary------------------
 
@@ -104,8 +109,9 @@ def upload_file():
             app.logger.info(upload_result)
             print (jsonify(upload_result))
             image_url = upload_result["secure_url"]
-            new_piece= Piece(image_url = image_url, title=form.title.data, comments=form.comments.data, user_id=current_user.id)
-            return render_template('index.html', piece = new_piece, form=form)
+            new_piece= Piece(image_url = image_url, title=form.title.data, artist=form.artist.data, comments=form.comments.data, user_id=current_user.id)
+            # return render_template('gallery.html', piece = new_piece, form=form)
+            return redirect(url_for('gallery'))
     else:
         return render_template('critique_room.html', form=form, piece=None)
 
@@ -115,31 +121,56 @@ def upload_file():
 
 # pieces = Piece.query.all
 
+@app.route('/pieces/<piece_id>/edit', methods=["GET", "POST"])
+@login_required
+def edit_piece(piece_id):
+    piece_to_edit = Piece.query.get_or_404(piece_id)
+    # make sure the post to edit is owned by the current user
+    if piece_to_edit.creator != current_user:
+        flash("Sorry! You do not have permission to edit this peice. Please sign in or create a separate account", "danger")
+        return redirect(url_for('index', piece_id=piece_id))
+    form = ImageForm()
+    if form.validate_on_submit():
+        cloudinary.config(cloud_name = os.getenv('CLOUD_NAME'), api_key=os.getenv('API_KEY'), 
+        api_secret=os.getenv('API_SECRET'))
+        upload_result = None
+        file_to_upload = request.files['file']
+        app.logger.info('%s file_to_upload', file_to_upload)
+        if file_to_upload:
+            upload_result = cloudinary.uploader.upload(file_to_upload)
+            app.logger.info(upload_result)
+            print (jsonify(upload_result))
+            image_url = upload_result["secure_url"]
+            title = form.title.data
+            artist= form.artist.data
+            comments = form.comments.data
+            piece_to_edit.update(image_url = image_url, title=title, artist=artist, comments=comments, user_id=current_user.id)
+            flash(f"{piece_to_edit.title} has been updated", 'success')
+            return redirect(url_for('portfolio', piece_id=piece_id))
+        else:
+            title = form.title.data
+            artist= form.artist.data
+            comments = form.comments.data
+            piece_to_edit.update(title=title, artist=artist, comments=comments, user_id=current_user.id)
+            flash(f"{piece_to_edit.title} has been updated", 'success')
+        return redirect(url_for('portfolio', piece_id=piece_id))
+    return render_template('edit_piece.html', piece=piece_to_edit, form=form)          
+        
+
+@app.route('/pieces/<piece_id>/delete')
+@login_required
+def delete_piece(piece_id):
+    piece_to_delete = Piece.query.get_or_404(piece_id)
+    if piece_to_delete.creator != current_user:
+        flash('You do not have permission to delete this piece', 'danger')
+        return redirect(url_for('index'))
+    piece_to_delete.delete()
+    flash(f"{piece_to_delete.title} has been deleted", 'info')
+    return redirect(url_for('portfolio', piece=piece_to_delete))
 
 
 
 
-
-
-
-
-#     form = AddyForm()
-#     states = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming', 'N/A']
-#     countries = ["United States", "Canada", "Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antarctica", "Antigua and/or Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Bouvet Island", "Brazil", "British Indian Ocean Territory", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Cape Verde", "Cayman Islands", "Central African Republic", "Chad", "Chile", "China", "Christmas Island", "Cocos (Keeling) Islands", "Colombia", "Comoros", "Congo", "Cook Islands", "Costa Rica", "Croatia (Hrvatska)", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Falkland Islands (Malvinas)", "Faroe Islands", "Fiji", "Finland", "France", "France, Metropolitan", "French Guiana", "French Polynesia", "French Southern Territories", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe", "Guam", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Heard and Mc Donald Islands", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran (Islamic Republic of)", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, Democratic People's Republic of", "Korea, Republic of", "Kuwait", "Kyrgyzstan", "Lao People's Democratic Republic", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libyan Arab Jamahiriya", "Liechtenstein", "Lithuania", "Luxembourg", "Macau", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Martinique", "Mauritania", "Mauritius", "Mayotte", "Mexico", "Micronesia, Federated States of", "Moldova, Republic of", "Monaco", "Mongolia", "Montserrat", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "Netherlands Antilles", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Norfolk Island", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn", "Poland", "Portugal", "Puerto Rico", "Qatar", "Reunion", "Romania", "Russian Federation", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Georgia South Sandwich Islands", "Spain", "Sri Lanka", "St. Helena", "St. Pierre and Miquelon", "Sudan", "Suriname", "Svalbard and Jan Mayen Islands", "Swaziland", "Sweden", "Switzerland", "Syrian Arab Republic", "Taiwan", "Tajikistan", "Tanzania, United Republic of", "Thailand", "Togo", "Tokelau", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Turks and Caicos Islands", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States minor outlying islands", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City State", "Venezuela", "Vietnam", "Virgin Islands (British)", "Virgin Islands (U.S.)", "Wallis and Futuna Islands", "Western Sahara", "Yemen", "Yugoslavia", "Zaire", "Zambia", "Zimbabwe"]
-#     if form.validate_on_submit():
-#         print('Hello the form validated')
-#         first_name = form.first_name.data
-#         last_name = form.last_name.data
-#         phone_number = form.phone_number.data
-#         street_address = form.street_address.data
-#         city = form.city.data
-#         state = form.state.data
-#         country = form.country.data
-#         zip_code = form.zip_code.data
-#         contact = Contact(first_name=first_name, last_name=last_name, phone_number=phone_number, street_address=street_address, city=city, state=state, country=country, zip_code=zip_code, user_id=current_user.id)
-#         flash(f'{first_name} {last_name}\'s Addy has been added.', 'info')
-#         return redirect(url_for('index'))
-#     return render_template('add_addy.html', form=form, states=states, countries=countries)
 
 
 # @app.route('/contacts/<contact_id>/edit', methods=["GET", "POST"])

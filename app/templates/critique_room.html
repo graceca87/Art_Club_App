@@ -3,25 +3,8 @@
 {% block title %}Crit-Room{% endblock title %}
 
 {% block content %}
- <h1>This is where we are going to display all of the WIPs</h1>
     
 
-{% if piece %}
-
-    <div class="card" style="width: 18rem;">
-        <img src="{{ piece.image_url }}" class="card-img-top" alt="...">
-        <div class="card-body">
-            <h5 class="card-title">{{ piece.title }}</h5>
-            <p class="card-text">{{ piece.comments }}</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-        </div>
-    </div>
-
-{% endif %}
-
-
-
- 
 
     <div class="card mt-4 rounded w-75 mx-auto">
         <h5 class="card-header text-center">Upload your artwork</h5>
@@ -37,15 +20,19 @@
                 <div class="d-flex flex-row">
                     <div class="p-2 col-12 text-center">
                         {{ form.title.label }}
-                        {{ form.title(class="w-75") }}
+                        {{ form.title(class="w-75", placeholder="Enter the title of your piece or 'W.I.P.'") }}
+                    </div>
+                </div>
+                <div class="d-flex flex-row">
+                    <div class="p-2 col-12 text-center">
+                        {{ form.artist.label }}
+                        {{ form.artist(class="w-75", placeholder="Enter Your Name Here") }}
                     </div>
                 </div>
                 <div class="d-flex flex-row justify-content-around"></div>
                     <div class="form-group p-2 col-12 text-center">
                         {{ form.comments.label }}
-                        
-                        {{ form.comments(class="w-75") }}
-                       
+                        {{ form.comments(class="w-75", placeholder="Include any specific questions or feedback you would like here") }}
                     </div>
                 <div class="d-flex row justify-content-center">
                     {{ form.submit(class='btn btn-secondary m-3 w-50', value='Submit') }}
@@ -53,9 +40,5 @@
             </div>
         </form>
     </div>
-
-<!-- {% for file in files %}
-<img src="{{ url_for('upload', filename=file) }}" style="width: 64px">
-{% endfor %} -->
 
 {% endblock content %}

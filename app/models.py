@@ -10,8 +10,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(256), nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    pieces = db.relationship('Piece', backref='artist', lazy='dynamic')
-    
+    pieces = db.relationship('Piece', backref='creator', lazy='dynamic')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -39,11 +38,11 @@ class Piece(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     image_url = db.Column(db.String, unique=True, nullable=False)
     # prev_versions = db.Column()
+    artist = db.Column(db.String(100), nullable=False)
     title = db.Column(db.String(250), nullable=False)
     comments = db.Column(db.String)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
     # user = db.relationship('Artist', backref='pieces', lazy='dynamic')
 
     def __init__(self, **kwargs):
@@ -51,38 +50,37 @@ class Piece(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    # def update(self, **kwargs):
-    #     for key, value in kwargs.items():
-    #         if key in {"first_name","last_name", "phone_number", "street_address", "city", "state", "country", "zip_code"}:
-    #             setattr(self, key, value)
-    #     db.session.commit()
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            if key in {"image_url", "title","comments", "artist"}:
+                setattr(self, key, value)
+        db.session.commit()
 
-    # def delete(self):
-    #     db.session.delete(self)
-    #     db.session.commit()
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
 
 
-# class Comment(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     body = db.Column(db.String(1000), nullable=False)
-#     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-#     piece = db.Column(db.Integer, db.ForeignKey('piece.id'))
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.String(1000), nullable=False)
+    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    piece = db.Column(db.Integer, db.ForeignKey('piece.id'))
 
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
-#         db.session.add(self)
-#         db.session.commit()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        db.session.add(self)
+        db.session.commit()
 
-#     def update(self, **kwargs):
-#         for key, value in kwargs.items():
-#             # if self.comment.id == self.user
-#             if key in {"body"}:
-#                 setattr(self, key, value)
-#         db.session.commit()
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            if key in {"body"}:
+                setattr(self, key, value)
+        db.session.commit()
 
-#     def delete(self):
-#         db.session.delete(self)
-#         db.session.commit()
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
 
 

@@ -12,6 +12,8 @@
  * Copyright 2011-2022 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
+
+
 @import url("https://fonts.googleapis.com/css?family=Neucha|Cabin+Sketch&display=swap");
 :root {
   --bs-blue: #007bff;
@@ -93,6 +95,11 @@
     scroll-behavior: smooth;
   }
 }
+/* 
+.card{
+  height: 100%
+} */
+
 
 body {
   margin: 0;
@@ -4205,12 +4212,14 @@ textarea.form-control-lg {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  max-width: 600px;
   height: var(--bs-card-height);
   word-wrap: break-word;
   background-color: var(--bs-card-bg);
   background-clip: border-box;
   border: var(--bs-card-border-width) solid var(--bs-card-border-color);
   border-radius: var(--bs-card-border-radius);
+  
 }
 .card > hr {
   margin-right: 0;
@@ -4308,11 +4317,13 @@ textarea.form-control-lg {
 .card-img,
 .card-img-top,
 .card-img-bottom {
-  width: 100%;
+  max-width: 600px;
+  max-height: 700px;
 }
 
 .card-img,
 .card-img-top {
+  
   border-top-left-radius: var(--bs-card-inner-border-radius);
   border-top-right-radius: var(--bs-card-inner-border-radius);
 }
