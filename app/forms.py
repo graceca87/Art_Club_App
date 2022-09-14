@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import validators, StringField, PasswordField, SubmitField, TextAreaField
+from wtforms import validators, StringField, PasswordField, SubmitField, TextAreaField, HiddenField
 from wtforms.validators import InputRequired, EqualTo
 from flask_wtf.file import FileField, FileAllowed
 
@@ -37,4 +37,10 @@ class ImageForm(FlaskForm):
         validators.Length(max=100)
     ])
     comments = TextAreaField('Comments')
+    submit = SubmitField('Submit')
+
+
+class CommentForm(FlaskForm):
+    comments = TextAreaField('Feedback')
+    piece_id = HiddenField()
     submit = SubmitField('Submit')

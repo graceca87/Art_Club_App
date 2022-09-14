@@ -11,7 +11,8 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(256), nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     pieces = db.relationship('Piece', backref='creator', lazy='dynamic')
-
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
+    
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # Save the password as the hashed version of the password
@@ -43,6 +44,7 @@ class Piece(db.Model):
     comments = db.Column(db.String)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_comments = db.relationship('Comment', backref='piece', lazy='dynamic')
     # user = db.relationship('Artist', backref='pieces', lazy='dynamic')
 
     def __init__(self, **kwargs):
@@ -60,13 +62,13 @@ class Piece(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    body = db.Column(db.String(1000), nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    piece = db.Column(db.Integer, db.ForeignKey('piece.id'))
+    text = db.Column(db.String(400), nullable=False)
+    timestamp = db.Column(db.DateTime(), default=datetime.utcnow, index=True)
+    piece_id = db.Column(db.Integer, db.ForeignKey("piece.id"), nullable=False)
+    user_id = db.Column(db.String, db.ForeignKey("user.id"))
+    
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -75,7 +77,7 @@ class Comment(db.Model):
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
-            if key in {"body"}:
+            if key in {"text"}:
                 setattr(self, key, value)
         db.session.commit()
 

@@ -2,8 +2,8 @@ from tkinter import Image
 from app import app, db
 from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
-from app.forms import SignUpForm, LoginForm, ImageForm
-from app.models import User, Piece
+from app.forms import SignUpForm, LoginForm, ImageForm, CommentForm
+from app.models import User, Piece, Comment
 from werkzeug.utils import secure_filename
 from flask_cors import CORS, cross_origin
 from dotenv import load_dotenv
@@ -76,10 +76,17 @@ def critique_room():
     return render_template('critique_room.html', form=form)
 
 
-@app.route('/gallery')
+@app.route('/gallery', methods=['GET', 'POST'])
 def gallery():
     pieces = Piece.query.all()
-    return render_template('gallery.html', pieces=pieces)
+    form = CommentForm()
+    if form.validate_on_submit():
+        comments = form.comments.data
+        piece_id = form.piece_id.data
+        comment = Comment(text=comments, piece_id=piece_id, user_id=current_user.id)
+        return redirect(url_for('gallery'))
+    comments = Comment.query.order_by(Comment.timestamp.asc())
+    return render_template('gallery.html', pieces=pieces, form=form, comments=comments)
 
 @app.route('/portfolio')
 def portfolio():
@@ -113,7 +120,7 @@ def upload_file():
             # return render_template('gallery.html', piece = new_piece, form=form)
             return redirect(url_for('gallery'))
     else:
-        return render_template('critique_room.html', form=form, piece=None)
+        return render_template('add_piece.html', form=form, piece=None)
 
 
 
@@ -169,6 +176,20 @@ def delete_piece(piece_id):
     return redirect(url_for('portfolio', piece=piece_to_delete))
 
 
+@app.route('/comments/', methods=['POST','GET'])
+def comments():
+    comments =Comment.query.order_by(Comment.id.desc()).all()
+    return render_template('gallery.html',comments=comments)
+
+
+
+# # oldest comments first
+# for comment in Comment.query.order_by(Comment.timestamp.asc()):
+#     print('{}: {}'.format(comment.author, comment.text))
+
+# # newest comments first
+# for comment in Comment.query.order_by(Comment.timestamp.desc()):
+#     print('{}: {}'.format(comment.author, comment.text))
 
 
 

@@ -29,11 +29,12 @@
                         {{ form.artist(class="w-75", placeholder="Enter Your Name Here") }}
                     </div>
                 </div>
-                <div class="d-flex flex-row justify-content-around"></div>
+                <div class="d-flex flex-row justify-content-around">
                     <div class="form-group p-2 col-12 text-center">
                         {{ form.comments.label }}
                         {{ form.comments(class="w-75", placeholder="Include any specific questions or feedback you would like here") }}
                     </div>
+                </div>
                 <div class="d-flex row justify-content-center">
                     {{ form.submit(class='btn btn-secondary m-3 w-50', value='Submit') }}
                 </div>
