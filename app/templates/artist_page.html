@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Portfolio{% endblock title %}
+
+{% block content %}
+  
+<h1>Hello There Grace!</h1>
+
+    <div class="d-flex flex-wrap p-2">
+        <div class="col-8">
+            <h1>{{ piece.artist }}'s Portfolio</h1>
+        </div>
+    
+    <div class="d-flex flex-wrap p-2">
+        {% for piece in pieces %}
+        <div class="d-flex col-md-5 mb-4 p-3">
+            <div class="card m-2">
+                <img src="{{ piece.image_url }}" class="card-img-top img-fluid rounded-0">
+                <div class="card-body"><div class="d-flex flex-row justify-content-around">
+                    <h1><a href="{{ url_for('view_piece', piece_id=piece.id) }}" class="btn btn-outline btn-lg">{{ piece.title }}</a></h1>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+
+
+    {% endblock content %}

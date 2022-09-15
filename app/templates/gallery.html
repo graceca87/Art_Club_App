@@ -1,17 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}Gallery{% endblock title %}
+{% block title %}Critique Room{% endblock title %}
 
 {% block content %}
 
 {% if current_user.is_authenticated %}
 
-    <div class="d-flex flex-wrap p-2">
-        <div class="col-8">
-            <h1> Gallery/Forum </h1>
+    <div class="d-flex flex-wrap p-2 mt-5">
+        <div class="col-10">
+            <h1 style="font-size:150px"> Critique Room </h1>
         </div>
+        <!-- <div class="col-2"></div> -->
         <div class='col-2'>
-            <p><a href="{{ url_for('upload_file') }}" id="add_art_button" class="btn btn-dark">Add Peice</a>
+            <p><a href="{{ url_for('upload_file') }}" class="btn btn-dark btn-lg justify-content-right">Upload Piece</a>
             </p>
         </div>
     </div>
@@ -25,16 +26,21 @@
                 <img src="{{ piece.image_url }}" class="card-img-top img-fluid rounded-0 mt-3" alt="...">
                 <div class="card-body">
                     <div class="d-flex flex-row justify-content-around">
-                        <h1"><a href="{{ url_for('view_piece', piece_id=piece.id) }}" style = "font-size: 30px" class="btn btn-outline">{{ piece.title }}</a></h1>
+                        <h1><a href="{{ url_for('view_piece', piece_id=piece.id) }}" style = "font-size: 30px" class="btn btn-outline">{{ piece.title }}</a></h1>
                     </div>
+                    <!-- button to take you to the artist's portfolio page -->
                     <div class="d-flex flex-row">
                         <div class="col-12 text-center mt-2">
-                            <p> By {{ piece.artist }}</p>
+
+                        <h1><a href="{{ url_for('artist_portfolio', user_id=piece.user_id) }}" class="btn btn-outline">{{ piece.artist }}</a></h1>
+
+                            <!-- <p> By {{ piece.artist }}</p> -->
                         </div>
                     </div>
+                    <!-- ----------------------------------- -->
                    
                     <div class="d-flex flex-row justify-content-around">
-                        <p class="card-text text-center"><small class="text-muted">submitted {{ piece.date_created.strftime('%B %d, %Y')
+                        <p class="card-text text-center"><small class="text-muted">posted on {{ piece.date_created.strftime('%B %d, %Y')
                                 }}</small>
                         </p>
                     </div>
@@ -47,7 +53,7 @@
                                 data-bs-target="#deleteModal-{{ piece.id }}">Delete</a></p>
                     </div>
                     <div class='col-6'>
-                        <p><a href="{{ url_for('edit_piece', piece_id=piece.id) }}" class="btn btn-outline btn-sm">Update Piece</a>
+                        <p><a href="{{ url_for('edit_piece', piece_id=piece.id) }}" class="btn btn-outline btn-sm">Edit</a>
                         </p>
                     </div>
                 </div>
@@ -101,21 +107,54 @@
             <div class="row">
                 <div class="card p-0">
                     <div class="card-header flex-row text-center">Discussion</div>
-                    {% for comment in piece.user_comments %}
-                    <div class="card-body">
-                        <div class="row">
-                            <p> {{ comment.author.username }} •
-                            <span class="text-muted">on {{ comment.timestamp.strftime('%B %d, %Y')}}</span>
-                            </p>
+                    <div class="scroll-box">
+                        {% for comment in piece.user_comments %}
+                        <div class="card-body">
+                            <div class="row">
+                                <p> {{ comment.author.username }} •
+                                    <span class="text-muted">on {{ comment.timestamp.strftime('%B %d, %Y')}}</span>
+
+                                    <!-- ----------------------- User Comments delete/edit buttons (only show on current users comments) ----------------------------- -->
+                                    {% if current_user == comment.author %}
+                                    <!-- <span class="d-flex flex-row">
+                                        <span class='col-6 text-center'> -->
+                                            <span> •        <a href="{{ url_for('delete_comment', comment_id=comment.id) }}" class="btn btn-colour-1 btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#deleteModal-{{ comment.id }}">Delete</a></span>
+                                        <!-- <span class='col-6'> -->
+                                            <span><a href="{{ url_for('edit_comment', comment_id=comment.id) }}" class="btn btn-outline btn-sm">Edit</a></span>
+
+                                </p>
+                            </div>
+                            <div class="row">
+                                    <p> {{ comment.text }}</p>
+                            </div>
+
+            
+                                
+                                <!-- Delete comment button modal -->
+                                <div class="modal fade" id="deleteModal-{{ comment.id }}" tabindex="-1" aria-labelledby="deleteModalLabel"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteModalLabel">Are you sure?</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to delete this comment? This action cannot be undone.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <a href="{{ url_for('delete_comment', comment_id=comment.id) }}" class="btn btn-danger">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                          
                         </div>
-                        <div class="row">
-                                <p> {{ comment.text }}</p>
-                        </div>
-                        <!-- <div class="d-flex flex-row justify-content-around">
-                            <p class="card-text text-center"><small class="text-muted">{{ comment.timestamp.strftime('%B %d, %Y')}}</small></p>
-                        </div> -->
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
             
             </div>
@@ -130,10 +169,12 @@
                         <div class="form-group text-center col-12">
                             <div class="card-header flex-row">
                                 {{ form.comments.label }}
-                                {{ form.comments(class="w-100", placeholder="join in on the discussion") }}
+
+                                    {{ form.comments(class="w-100", placeholder="share your feedback") }}
+
                             </div>
                             <div class="flex-row">
-                                {{ form.submit(class='btn btn-secondary m-3 w-50', value='Share') }}
+                                {{ form.submit(class='btn btn-secondary m-3 w-25 btn-sm', value='Share') }}
                             </div>
                         </div>
                     </div>

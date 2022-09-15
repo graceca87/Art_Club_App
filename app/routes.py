@@ -78,7 +78,7 @@ def critique_room():
 
 @app.route('/gallery', methods=['GET', 'POST'])
 def gallery():
-    pieces = Piece.query.all()
+    pieces = Piece.query.order_by(Piece.date_created.desc())
     form = CommentForm()
     if form.validate_on_submit():
         comments = form.comments.data
@@ -88,22 +88,31 @@ def gallery():
     comments = Comment.query.order_by(Comment.timestamp.asc())
     return render_template('gallery.html', pieces=pieces, form=form, comments=comments)
 
-@app.route('/portfolio')
-def portfolio():
-    pieces = current_user.pieces
-    return render_template('portfolio.html', pieces=pieces)
+# @app.route('/portfolio')
+# def portfolio():
+#     pieces = current_user.pieces
+#     return render_template('portfolio.html', user=current_user, pieces=pieces)
+
 
 @app.route('/pieces/<piece_id>/view')
 def view_piece(piece_id):
     piece = Piece.query.get_or_404(piece_id)
     return render_template('view_piece.html', piece=piece)
 
-# ------------------- Cloudinary------------------
+
+@app.route('/portfolio/<user_id>')
+def artist_portfolio(user_id):
+    user = User.query.get_or_404(user_id)
+    pieces = user.pieces
+    return render_template('portfolio.html', user=user, pieces=pieces)
+ 
+
 
 
 @app.route("/upload-art", methods=['GET', 'POST'])
 def upload_file():
     form=ImageForm()
+    # ------------------- fetching images from cloudinary ------------------
     app.logger.info('in upload route')
     if request.method == 'POST' and form.validate_on_submit():
         cloudinary.config(cloud_name = os.getenv('CLOUD_NAME'), api_key=os.getenv('API_KEY'), 
@@ -132,11 +141,11 @@ def upload_file():
 @login_required
 def edit_piece(piece_id):
     piece_to_edit = Piece.query.get_or_404(piece_id)
+    form = ImageForm()
     # make sure the post to edit is owned by the current user
     if piece_to_edit.creator != current_user:
-        flash("Sorry! You do not have permission to edit this peice. Please sign in or create a separate account", "danger")
+        flash("Sorry! You do not have permission to edit this piece. Please sign in or create a separate account", "danger")
         return redirect(url_for('index', piece_id=piece_id))
-    form = ImageForm()
     if form.validate_on_submit():
         cloudinary.config(cloud_name = os.getenv('CLOUD_NAME'), api_key=os.getenv('API_KEY'), 
         api_secret=os.getenv('API_SECRET'))
@@ -153,14 +162,15 @@ def edit_piece(piece_id):
             comments = form.comments.data
             piece_to_edit.update(image_url = image_url, title=title, artist=artist, comments=comments, user_id=current_user.id)
             flash(f"{piece_to_edit.title} has been updated", 'success')
-            return redirect(url_for('portfolio', piece_id=piece_id))
+            return redirect(url_for('gallery', piece_id=piece_id))
         else:
             title = form.title.data
             artist= form.artist.data
             comments = form.comments.data
             piece_to_edit.update(title=title, artist=artist, comments=comments, user_id=current_user.id)
             flash(f"{piece_to_edit.title} has been updated", 'success')
-        return redirect(url_for('portfolio', piece_id=piece_id))
+        return redirect(url_for('gallery', piece_id=piece_id))
+    form.comments.data=piece_to_edit.comments
     return render_template('edit_piece.html', piece=piece_to_edit, form=form)          
         
 
@@ -182,6 +192,34 @@ def comments():
     return render_template('gallery.html',comments=comments)
 
 
+@app.route('/comments/<comment_id>/edit-comment', methods=["GET", "POST"])
+@login_required
+def edit_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    form = CommentForm()
+    # make sure the post to edit is owned by the current user
+    if comment.author != current_user:
+        flash("Sorry! You do not have permission to edit this comment", "danger")
+        return redirect(url_for('gallery', comment=comment.id))
+    if form.validate_on_submit():
+        comment.update(text=form.comments.data, user_id=current_user.id)
+        flash(f"your comment has been updated", 'success')
+        return redirect(url_for('gallery', comment_id=comment_id))
+    form.comments.data = comment.text
+    return render_template('edit_comment.html', comment=comment, form=form)          
+        
+
+
+@app.route('/comments/<comment_id>/delete')
+@login_required
+def delete_comment(comment_id):
+    comment_to_delete = Comment.query.get_or_404(comment_id)
+    if comment_to_delete.author != current_user:
+        flash('You do not have permission to delete this comment', 'danger')
+        return redirect(url_for('gallery'))
+    comment_to_delete.delete()
+    flash(f"Your comment has been deleted", 'info')
+    return redirect(url_for('gallery', comment=comment_to_delete))
 
 # # oldest comments first
 # for comment in Comment.query.order_by(Comment.timestamp.asc()):
@@ -192,42 +230,3 @@ def comments():
 #     print('{}: {}'.format(comment.author, comment.text))
 
 
-
-
-# @app.route('/contacts/<contact_id>/edit', methods=["GET", "POST"])
-# @login_required
-# def edit_addy(contact_id):
-#     contact_to_edit = Contact.query.get_or_404(contact_id)
-#     states = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming', 'N/A']
-#     countries = ["United States", "Canada", "Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antarctica", "Antigua and/or Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Bouvet Island", "Brazil", "British Indian Ocean Territory", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Cape Verde", "Cayman Islands", "Central African Republic", "Chad", "Chile", "China", "Christmas Island", "Cocos (Keeling) Islands", "Colombia", "Comoros", "Congo", "Cook Islands", "Costa Rica", "Croatia (Hrvatska)", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Falkland Islands (Malvinas)", "Faroe Islands", "Fiji", "Finland", "France", "France, Metropolitan", "French Guiana", "French Polynesia", "French Southern Territories", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe", "Guam", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Heard and Mc Donald Islands", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran (Islamic Republic of)", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, Democratic People's Republic of", "Korea, Republic of", "Kuwait", "Kyrgyzstan", "Lao People's Democratic Republic", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libyan Arab Jamahiriya", "Liechtenstein", "Lithuania", "Luxembourg", "Macau", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Martinique", "Mauritania", "Mauritius", "Mayotte", "Mexico", "Micronesia, Federated States of", "Moldova, Republic of", "Monaco", "Mongolia", "Montserrat", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "Netherlands Antilles", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Norfolk Island", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn", "Poland", "Portugal", "Puerto Rico", "Qatar", "Reunion", "Romania", "Russian Federation", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Georgia South Sandwich Islands", "Spain", "Sri Lanka", "St. Helena", "St. Pierre and Miquelon", "Sudan", "Suriname", "Svalbard and Jan Mayen Islands", "Swaziland", "Sweden", "Switzerland", "Syrian Arab Republic", "Taiwan", "Tajikistan", "Tanzania, United Republic of", "Thailand", "Togo", "Tokelau", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Turks and Caicos Islands", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States minor outlying islands", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City State", "Venezuela", "Vietnam", "Virgin Islands (British)", "Virgin Islands (U.S.)", "Wallis and Futuna Islands", "Western Sahara", "Yemen", "Yugoslavia", "Zaire", "Zambia", "Zimbabwe"]
-#     # make sure the post to edit is owned by the current user
-#     if contact_to_edit.book_owner != current_user:
-#         flash("Sorry! You do not have permission to edit this address. Please sign in or create a separate account", "danger")
-#         return redirect(url_for('index', contact_id=contact_id))
-#     form = AddyForm()
-#     if form.validate_on_submit():
-#         print("Addy validated!!!!!")
-#         first_name = form.first_name.data
-#         last_name = form.last_name.data
-#         phone_number = form.phone_number.data
-#         street_address = form.street_address.data
-#         city = form.city.data
-#         state = form.state.data
-#         country = form.country.data
-#         zip_code = form.zip_code.data
-#         contact_to_edit.update(first_name=first_name, last_name=last_name, phone_number=phone_number, street_address=street_address, city=city, state=state, country=country, zip_code=zip_code, user_id=current_user.id)
-#         flash(f"{contact_to_edit.first_name} {contact_to_edit.last_name}'s Addy has been updated", 'success')
-#         return redirect(url_for('index', contact_id=contact_id))
-#     return render_template('edit_addy.html', contact=contact_to_edit, form=form, states=states, countries=countries)
-
-
-# @app.route('/contacts/<contact_id>/delete')
-# @login_required
-# def delete_addy(contact_id):
-#     contact_to_delete = Contact.query.get_or_404(contact_id)
-#     if contact_to_delete.book_owner != current_user:
-#         flash('You do not have permission to delete this address', 'danger')
-#         return redirect(url_for('index'))
-#     contact_to_delete.delete()
-#     flash(f"{contact_to_delete.first_name}{contact_to_delete.last_name}'s address has been deleted", 'info')
-#     return redirect(url_for('index', contact=contact_to_delete))

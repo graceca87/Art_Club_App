@@ -84,6 +84,20 @@
   --bs-highlight-bg: #fff3cd;
 }
 
+
+.scroll-box
+  {
+        max-height: 30vh;
+        max-width: 100%;
+        overflow-y:scroll;
+    }
+
+.full-image{
+  height: 80vh;
+  width: max-auto;
+}
+
+
 *,
 *::before,
 *::after {

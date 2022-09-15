@@ -38,7 +38,6 @@ def load_user(user_id):
 class Piece(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     image_url = db.Column(db.String, unique=True, nullable=False)
-    # prev_versions = db.Column()
     artist = db.Column(db.String(100), nullable=False)
     title = db.Column(db.String(250), nullable=False)
     comments = db.Column(db.String)
@@ -76,6 +75,7 @@ class Comment(db.Model):
         db.session.commit()
 
     def update(self, **kwargs):
+        print(kwargs)
         for key, value in kwargs.items():
             if key in {"text"}:
                 setattr(self, key, value)

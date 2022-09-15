@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Comment{% endblock title %}
+
+{% block content %}
+
+
+<div class="d-flex flex-row mt-3 justify-content-center">
+    <div class="card w-100">
+        <form action="" method="POST" id="CommentForm" class="p-0">
+            {{ form.csrf_token }}
+            <div class="card-header text-center">
+                Edit Your Feedback
+            </div>
+            <div class="card-body">
+            {{ form.comments(class="w-100", value=comment.text) }}
+            </div>
+            {{ form.submit(class='btn btn-secondary m-3', value='Update') }}
+        </form>
+    </div>
+</div>
+{% endblock content %}
