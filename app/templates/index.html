@@ -5,4 +5,26 @@
 {% block content %}
 
 
+<!-- Hero -->
+<div class="hero p-5 text-center bg-image rounded-5 mt-4" style="
+    background-image: url('https://sothebys-com.brightspotcdn.com/dims4/default/a94bee5/2147483647/strip/true/crop/1920x440+0+97/resize/1440x330!/format/webp/quality/90/?url=http%3A%2F%2Fsothebys-brightspot-migration.s3.amazonaws.com%2F06%2F2a%2F80%2Ff3bf663ffbd73bae9da318c92114c41c072423443d424a81aa40880674%2Fklimt-bauerngarten-banner.jpg');
+    height: 400px; width: 100%
+  ">
+    <div class="mask" style="background-color: rgba(0, 0, 0, 0.6);">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="text-white">
+                <h1 class="mb-3">Welcome to Art Club</h1>
+                <h4 class="mb-3">A Space for Artists to Post and Discuss their Works in Progress</h4>
+                <p>
+                <span><a class="btn btn-outline-light btn-lg" href="{{ url_for('login') }}" role="button">login</a></span>
+                <span> or </span>
+                <span><a class="btn btn-outline-light btn-lg" href="{{ url_for('signup') }}" role="button">sign up</a></span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Hero -->
+
+
 {% endblock content %}

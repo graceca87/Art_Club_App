@@ -116,20 +116,19 @@
 
                                     <!-- ----------------------- User Comments delete/edit buttons (only show on current users comments) ----------------------------- -->
                                     {% if current_user == comment.author %}
-                                    <!-- <span class="d-flex flex-row">
-                                        <span class='col-6 text-center'> -->
-                                            <span> •        <a href="{{ url_for('delete_comment', comment_id=comment.id) }}" class="btn btn-colour-1 btn-sm"
+                                    
+                                        <span>•<a href="{{ url_for('delete_comment', comment_id=comment.id) }}" class="btn btn-colour-1 btn-sm"
                                                     data-bs-toggle="modal" data-bs-target="#deleteModal-{{ comment.id }}">Delete</a></span>
-                                        <!-- <span class='col-6'> -->
-                                            <span><a href="{{ url_for('edit_comment', comment_id=comment.id) }}" class="btn btn-outline btn-sm">Edit</a></span>
-
+                                        
+                                        <span><a href="{{ url_for('edit_comment', comment_id=comment.id) }}" class="btn btn-outline btn-sm">Edit</a></span>
+                                    {% endif %}
                                 </p>
                             </div>
                             <div class="row">
                                     <p> {{ comment.text }}</p>
                             </div>
 
-            
+                                
                                 
                                 <!-- Delete comment button modal -->
                                 <div class="modal fade" id="deleteModal-{{ comment.id }}" tabindex="-1" aria-labelledby="deleteModalLabel"
@@ -150,7 +149,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            {% endif %}
+                            
                           
                         </div>
                         {% endfor %}
