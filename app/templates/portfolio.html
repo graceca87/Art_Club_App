@@ -10,10 +10,11 @@
         <div class="col-8">
             <h1>{{ user.username }}'s Portfolio</h1>
         </div>
+    
         <div class='col-2'>
-            <p><a href="{{ url_for('upload_file') }}" class="btn webkit-file-upload-button">Add Artwork</a>
-            </p>
+            <p><a href="{{ url_for('gallery') }}" class="btn btn-dark">back to critique room</a></p>
         </div>
+       
     </div>
     
 <div class="d-flex flex-wrap p-2">
@@ -24,12 +25,12 @@
             <div class="card-body"><div class="d-flex flex-row justify-content-around">
                 <h1><a href="{{ url_for('view_piece', piece_id=piece.id) }}" class="btn btn-outline btn-lg">{{ piece.title }}</a></h1>
             </div>
-            <!-- <div class="d-flex flex-row justify-content-around">
-                <p class="card-text"><small class="text-muted">uploaded {{ piece.date_created.strftime('%B %d, %Y') }}</small></p>
-            </div> -->
+            <div class="d-flex flex-row justify-content-around">
+                <p class="card-text">By {{ piece.artist }}</p>
+            </div>
             <!-- Edit/Delete Buttons should only be shown on the artist's own pieces -->
             {% if current_user == piece.creator %}
-            <div class="d-flex flex-row">
+            <div class="d-flex flex-row mt-3">
                 <div class='col-6 text-center'>
                     <p><a href="{{ url_for('delete_piece', piece_id=piece.id) }}" class="btn btn-colour-1 btn-sm" data-bs-toggle="modal"
                             data-bs-target="#deleteModal-{{ piece.id }}">Delete</a></p>

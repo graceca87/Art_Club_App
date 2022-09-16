@@ -65,7 +65,7 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(400), nullable=False)
     timestamp = db.Column(db.DateTime(), default=datetime.utcnow, index=True)
-    piece_id = db.Column(db.Integer, db.ForeignKey("piece.id"), nullable=False)
+    piece_id = db.Column(db.Integer, db.ForeignKey("piece.id"))
     user_id = db.Column(db.String, db.ForeignKey("user.id"))
     
 
