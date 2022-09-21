@@ -30,7 +30,7 @@ class User(db.Model, UserMixin):
         self.password = generate_password_hash(password)
         db.session.commit
 
-#LoginManager takes in id and stores it across requests. This callback is used to reload the user object
+
 @login.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
@@ -44,7 +44,7 @@ class Piece(db.Model):
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user_comments = db.relationship('Comment', backref='piece', lazy='dynamic')
-    # user = db.relationship('Artist', backref='pieces', lazy='dynamic')
+
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
