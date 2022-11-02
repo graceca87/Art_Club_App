@@ -23,7 +23,7 @@ CORS(app)
 # Create an instance of the LoginManager to handle authentication
 login = LoginManager(app)
 login.login_view = 'login' # Tells login manager which enpoint to redirect if not logged in
-login.login_message = 'You must be logged in to view or edit addresses, you silly goose!'
+login.login_message = 'You must be logged in to view or edit content'
 login.login_category = 'danger'
 
 
