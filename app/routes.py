@@ -183,7 +183,7 @@ def delete_piece(piece_id):
         return redirect(url_for('index'))
     piece_to_delete.delete()
     flash(f"{piece_to_delete.title} has been deleted", 'info')
-    return redirect(url_for('artist_portfolio', user_id=current_user.id))
+    return redirect(url_for('gallery', user_id=current_user.id))
 
 
 @app.route('/comments/', methods=['POST','GET'])

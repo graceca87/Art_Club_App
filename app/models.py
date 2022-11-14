@@ -57,7 +57,7 @@ class Piece(db.Model):
                 setattr(self, key, value)
         db.session.commit()
 
-    def delete(self):
+    def delete(self, **kwargs):
         db.session.delete(self)
         db.session.commit()
 
@@ -65,7 +65,7 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(400), nullable=False)
     timestamp = db.Column(db.DateTime(), default=datetime.utcnow, index=True)
-    piece_id = db.Column(db.Integer, db.ForeignKey("piece.id"))
+    piece_id = db.Column(db.Integer, db.ForeignKey("piece.id"), nullable=True)
     user_id = db.Column(db.String, db.ForeignKey("user.id"))
     
 
